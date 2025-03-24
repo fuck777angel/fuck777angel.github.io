@@ -1,136 +1,208 @@
 <!DOCTYPE html>
-<html style="--gradient-color: linear-gradient(330deg, #6402c7 0%, #F0A3D7 100%); --gradient-hover-color: linear-gradient(330deg, #6402c7 0%, #F0A3D7 100%); --gradient-focus-color: linear-gradient(330deg, #6402c7 0%, #F0A3D7 100%);" lang="en">
+<html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="keywords" content="nursultan, nursultan nextgen, nurik, wexside, celestial, akrien, minecraft, minecraft 1.8, minecraft 1.12.2, minecraft 1.16.5, deadcode, нурсултан, nursultan client, нурсултан клиент, нурик, вексайд, целестиал, акриен, майнкрафт, чит, читы, читы для майнкрафт, читы для minecraft, чит на майнкрафт, чит на minecraft, centric , centric client, центрик клиент, центрик, центрук">
-    <meta name="description" content=" Nursultan client - Лучший клиент для комфортной игры. Для майнкрафт 1.16.5 ">
-    <title id="title">Centric - Лучший клиент с модами для комфортной игры.</title>
-    <link href="styles/all.min.css" rel="stylesheet" crossorigin="use-credentials">
-    <link href="styles/main.636b34d1.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeezenAnime Bio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a2a2a);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Контейнер для био */
+        .bio-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .bio-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+        }
+
+        /* Аватар */
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #00ff88;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            transition: border-color 0.3s ease;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar:hover {
+            border-color: #00ffcc;
+        }
+
+        /* Имя */
+        .name {
+            color: #00ff88;
+            font-size: 24px;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
+        }
+
+        /* Описание */
+        .description {
+            color: #00ffcc;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(0, 255, 2040, 0.5);
+        }
+
+        /* Кнопки */
+        .social-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .social-links a {
+            text-decoration: none;
+            color: #fff;
+            background: rgba(0, 255, 136, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #00ff88;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-links a:hover {
+            background: rgba(0, 255, 136, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.7);
+        }
+
+        /* Иконки */
+        .social-links a::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-size: cover;
+        }
+
+        /* Частицы на фоне */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
+
+        /* Анимация свечения */
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+            }
+        }
+
+        /* Подпись */
+        .footer {
+            color: #00ff88;
+            font-size: 12px;
+            margin-top: 20px;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+    </style>
 </head>
 <body>
-    <div id="root">
-        <nav class="NavBar_navBarScroll__qoIDu navbar navbar-expand-md fixed-top">
-            <div class="container-xl">
-                <a class="navbar-brand mr-2" href="/">CENTRIC</a>
-                <button aria-controls="navbar" type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
-        </nav>
-                <div class="Home_content__8iZC8">
-                    <div class="Home_container__cVPim vh-100" style="background: url(&quot;image/background.png&quot;) left top / cover no-repeat;">
-                        <div class="Home_welcomeContainer__dq5Ei">
-                            <div class="Home_welcome__hUwCD container-xl">
-                                <div class="Home_welcomeLeft__M7Qlh">
-                                    <h1>О нас</h1>
-                                    <p>Мы предоставляем вам лучший клиент для комфортной игры, который даст вам наилучшие впечатления от игры.</p>
-                                <div class="Home_welcomeButtons__wxgeb mt-5">
-                                            <a class="btn btn-dark btn-lg mt-2" href="https://discord.gg/TqAG34UgKx" target="_blank" rel="noreferrer">Подробнее<i class="fa-solid fa-circle-arrow-right ml-2"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            <div class="Home_welcomeRight__yB4kH">
-                                <img src="https://discord.gg/TqAG34UgKx" alt="" crossorigin="use-credentials">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="Home_container__cVPim">
-                    <div class="container-xl">
-                        <div class="Home_benefits__eeofC">
-                            <div class="Home_benefitsTitle__UVgw0">
-                                <h1>Наши преимущества</h1>
-                                <p>Мы кратко изложили вам то, что вы гарантированно получите после покупки нашего клиента.</p>
-                            </div>
-                            <div class="Home_benefit__FkNB8">
-                                <div class="Home_benefitHeader__wJVp4">
-                                    <span>
-                                        <i class="fa-solid fa-eye mr-2">
+    <!-- Частицы -->
+    <div class="particles">
+        <div class="particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; top: 50%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 30%; top: 80%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 70%; top: 30%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 80%; top: 60%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 90%; top: 10%; animation-delay: 5s;"></div>
+    </div>
 
-                                        </i>Красивый внешний вид</span>
-                                    </div>
-                                <div class="Home_benefitBody__FOQOr">
-                                    <p>В нашем клиенте присутствует большое количество визуальных функций, которые сделают вашу игру более красочной. А так же вы можете настроить оформление клиента под себя, сделав его по настоящему красивым.</p>
-                                </div>
-                            </div>
-                            <div class="Home_benefit__FkNB8">
-                                <div class="Home_benefitHeader__wJVp4">
-                                    <span>
-                                        <i class="fa-solid fa-sliders mr-2">
-                                        </i>Настраиваемость</span>
-                                    </div>
-                                    <div class="Home_benefitBody__FOQOr">
-                                        <p>В нашем клиенте вы можете настроить практически любую функцию под себя, а так же использовать конфигурации других пользователей. Благодаря этому вы сможете использовать наш клиент на максимуме его возможностей.</p>
-                                    </div>
-                                </div>
-                                <div class="Home_benefit__FkNB8">
-                                    <div class="Home_benefitHeader__wJVp4">
-                                        <span><i class="fa-solid fa-gauge-max mr-2"> 
-                                        </i>Оптимизация</span>
-                                    </div>
-                                <div class="Home_benefitBody__FOQOr"><p>Мы постоянно улучшаем оптимизацию нашего клиента и самой игры. Благодаря этому вы сможете запустить наш клиент даже на слабых компьютерах.</p>
-                                </div>
-                            </div>
-                            <div class="Home_benefit__FkNB8">
-                                <div class="Home_benefitHeader__wJVp4">
-                                    <span>
-                                        <i class="fa-solid fa-arrow-rotate-right mr-2">
-                                        </i>Частые обновления</span>
-                                    </div>
-                                <div class="Home_benefitBody__FOQOr"><p>Мы регулярно обновляем функционал в нашем клиенте, добавляя новые функции, а так же совершенствуя уже существующие. Благодаря этому наш клиент имеет преимущества под все существующие сервера.</p>
-                                </div>
-                            </div>
-                            <div class="Home_benefit__FkNB8">
-                                <div class="Home_benefitHeader__wJVp4">
-                                    <span><i class="fa-solid fa-user-headset mr-2">
-                                    </i>Лучшая поддержка</span>
-                                </div>
-                            <div class="Home_benefitBody__FOQOr"><p>У нас самая лучшая поддержка, которая разбирается в своём деле и сможет помочь вам по любому вопросу связанному с нашим клиетом.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="Home_container__cVPim">
-                <div class="Home_videoContainer__Ofoc8 container-xl">
-                    <h1>Видеообзор</h1>
-                    <p>Ниже вы можете посмотреть небольшой геймплей с нашим клиентом.</p>
-                    <div class="Home_video__6af+s">
-                        <iframe title="Обзор клиента" src="https://www.youtube.com/embed/fWF6BAeXjuM"></iframe>
-                    </div>
-                </div>
-            </div>
+    <!-- Карточка био -->
+    <div class="bio-card">
+        <div class="avatar">
+            <!-- Замените src на ссылку на ваше изображение -->
+            <img src="https://via.placeholder.com/100" alt="Avatar">
         </div>
-    </div>
-</div>
-<div class="Footer_footer__u198X">
-    <div class="container-xl">
-        <div class="Footer_logo__IYJVU">CENTRIC</div>
-        <div class="Footer_links__05sun">
-            <div class="Footer_leftLinks__wl6Nn">
-                <span class="mb-2">Навигация</span>
-                <a class="Footer_link__VojPC">made by centric client developers</a>
-                <a class="Footer_link__VojPC">made by centric client developers</a>
-                <a class="Footer_link__VojPC">made by centric client developers</a>
-            </div>
-            <div class="Footer_centerLinks__C46zx"><span></span>
-            <span>Дискорд тег для связи: xzxcasd (ПН-ПТ 10:00-18:00 МСК)</span>
+        <h1 class="name">VeezenAnime</h1>
+        <p class="description">Блин я гога,<br>а ты хуйня</p>
+        <div class="social-links">
+            <a href="#">Telegram</a>
+            <a href="#">Discord</a>
+            <a href="#">Сайт</a>
+            <a href="#">Поддержка</a>
         </div>
-        <div class="Footer_rightLinks__qJx8U">
-            <span class="mb-2">Навигация</span>
-            <a class="Footer_link__VojPC">made by centric client developers</a>
-            <a class="Footer_link__VojPC">made by centric client developers</a>
-            <a class="Footer_link__VojPC">made by centric client developers</a>
-        </div>
+        <p class="footer">© 2025 VeezenAnime. Анимешный мир.</p>
     </div>
-    <div class="Footer_copyright__YcwEz">
-        <span>Copyright © CentricClient 2024</span>
-    </div>
-</div>
-</div>
-</div>
-<iframe style="position: absolute; top: 0px; left: 0px; border: medium none; visibility: hidden;" width="1" height="1"></iframe>
+
+    <script>
+        // Динамическое создание частиц
+        const particlesContainer = document.querySelector('.particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particlesContainer.appendChild(particle);
+        }
+    </script>
 </body>
 </html>
