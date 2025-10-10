@@ -1,435 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>FourClient — Minecraft Client</title>
-<meta name="description" content="FourClient — lightweight Minecraft client. Fast, clean, reliable. v0.1" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-  :root{
-    --bg:#000;
-    --fg:#fff;
-    --muted:#cfcfcf;
-    --accent:#ffffff;
-    --glass: rgba(255,255,255,0.04);
-    --trans-dur: 240ms;
-    --max-width:1100px;
-  }
-
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    background:var(--bg);
-    color:var(--fg);
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    line-height:1.4;
-    overflow-y:scroll;
-    scroll-behavior:smooth;
-  }
-
-  .bg {
-    position:fixed; inset:0; z-index:-2;
-    background: url('https://ic.pics.livejournal.com/njkntr/85395137/789525/789525_original.png') center/cover no-repeat;
-    filter: grayscale(100%) brightness(.7);
-    opacity:.20;
-  }
-  .bg::after{
-    content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.6));
-  }
-
-  .grain{
-    position:fixed; inset:0; pointer-events:none; z-index:0;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="g"><feTurbulence baseFrequency="0.9" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23g)" opacity="0.02"/></svg>');
-    mix-blend-mode:overlay;
-  }
-
-  #progress {
-    position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,#fff,#bfbfbf);
-    z-index:60; transition: width 120ms linear;
-  }
-
-  nav.sidebar{
-    position:fixed; left:18px; top:50%; transform:translateY(-50%);
-    display:flex; flex-direction:column; gap:10px; z-index:50;
-    transition: transform var(--trans-dur) ease, opacity var(--trans-dur);
-    will-change:transform,opacity;
-  }
-  nav.sidebar.hide { transform: translate(-10px,-50%); opacity:0; pointer-events:none }
-  nav.sidebar a{
-    color:var(--muted); text-decoration:none; font-weight:600; font-size:0.92rem;
-    padding:8px 12px; border-radius:8px; letter-spacing:.6px;
-    transition: all 180ms ease;
-    display:inline-block;
-  }
-  nav.sidebar a:hover{ color:var(--fg); transform:translateX(6px) }
-  nav.sidebar a.active{
-    color:var(--fg); background:var(--glass); border-left:3px solid rgba(255,255,255,0.06);
-    backdrop-filter: blur(4px);
-  }
-
-  .version-badge{
-    position:fixed; left:18px; bottom:18px; font-family:'Roboto Mono', monospace;
-    color:var(--muted); font-size:0.85rem; z-index:50; opacity:.95;
-  }
-
-  .container{
-    max-width:var(--max-width); margin:0 auto; padding:80px 20px;
-    position:relative; z-index:10;
-  }
-
-  header.hero{
-    min-height:80vh; display:flex; align-items:center; justify-content:center; text-align:center;
-    flex-direction:column; gap:12px;
-  }
-
-  h1.title{
-    font-size:3.2rem; line-height:1; font-weight:600; letter-spacing:2px;
-    color:var(--fg); margin-bottom:8px; text-shadow:0 0 10px rgba(0,0,0,0.9);
-    font-family:"Inter",sans-serif;
-    overflow:hidden; white-space:nowrap;
-  }
-  h1.title .cursor{ display:inline-block; width:10px; height:28px; background:var(--fg); margin-left:8px; vertical-align:middle; opacity:1;
-    animation: blink 900ms steps(2) infinite; }
-
-  @keyframes blink{ 50%{ opacity:0 } }
-
-  p.lead { color:var(--muted); font-size:1.05rem; margin-bottom:10px; letter-spacing:.6px }
-
-  .buttons { display:flex; gap:12px; justify-content:center; margin-top:16px; flex-wrap:wrap }
-  .btn{
-    padding:10px 16px; border-radius:999px; border:1px solid rgba(255,255,255,0.12);
-    background:transparent; color:var(--fg); text-decoration:none; font-weight:600; font-size:.95rem;
-    transition: transform 160ms ease, background 160ms, color 160ms;
-    cursor:pointer;
-  }
-  .btn:hover{ transform:scale(1.035); background: rgba(255,255,255,0.04) }
-
-  section{
-    padding:48px 0; border-top:1px solid rgba(255,255,255,0.04);
-  }
-  .section-inner{ max-width:900px; margin:0 auto; padding:0 20px; }
-
-  h2{ font-size:1.4rem; margin-bottom:10px; letter-spacing:1px; color:var(--fg) }
-  .muted { color:var(--muted); font-size:.98rem }
-
-  .team-card{
-    display:flex; gap:14px; align-items:center; background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;
-  }
-  .avatar{
-    width:56px; height:56px; border-radius:8px; background:#111; display:flex; align-items:center; justify-content:center;
-    font-family:'Roboto Mono'; font-weight:700; color:#bbb; font-size:1.1rem; border:1px solid rgba(255,255,255,0.04)
-  }
-  .team-meta a{ color:var(--accent); text-decoration:none; font-weight:600 }
-  .team-meta .role{ color:var(--muted); font-size:.92rem }
-
-  .faq{ display:flex; flex-direction:column; gap:10px }
-  .faq-item{ background:rgba(255,255,255,0.01); padding:12px; border-radius:8px; cursor:pointer; border:1px solid rgba(255,255,255,0.02) }
-  .faq-item summary{ list-style:none; font-weight:600; color:var(--fg) }
-  .faq-item p{ margin-top:8px; color:var(--muted); font-size:.95rem }
-
-  .changelog{ display:flex; flex-direction:column; gap:12px }
-  .log-entry{ background:rgba(255,255,255,0.01); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02) }
-  .log-entry .meta{ font-family:'Roboto Mono'; color:var(--muted); font-size:.85rem }
-
-
-  #toTop{
-    position:fixed; right:18px; bottom:18px; z-index:60; background:rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.06); color:var(--fg); padding:10px; border-radius:10px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; width:44px; height:44px; transition:transform 160ms;
-  }
-  #toTop:hover{ transform:translateY(-4px) }
-
-  footer.site-footer{ padding:20px 0; text-align:center; color:var(--muted); font-size:.95rem; border-top:1px solid rgba(255,255,255,0.03); margin-top:36px }
-
-  .reveal { opacity:0; transform:translateY(14px); transition:opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms; }
-  .reveal.show { opacity:1; transform:none; }
-
-  @media (max-width:720px){
-    nav.sidebar{ left:10px }
-    h1.title{ font-size:2.2rem }
-    .container{ padding-top:60px }
-  }
-
-  a { color:inherit }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>> FourClient</title>
+  <meta name="description" content="FourClient — lightweight Minecraft client. Fast, clean, reliable. v0.1" />
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="particles" id="particles"></div>
+  <div id="progress" aria-hidden="true"></div>
+  <div id="loader" class="loader"><div class="dots"><span></span><span></span><span></span></div></div>
 
-<div class="bg" aria-hidden="true"></div>
-<div class="grain" aria-hidden="true"></div>
-<div id="progress" aria-hidden="true"></div>
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="#home" data-target="home" class="nav-link active">Home</a>
+    <a href="#features" data-target="features" class="nav-link">Features</a>
+    <a href="#why" data-target="why" class="nav-link">Why FourClient?</a>
+    <a href="#team" data-target="team" class="nav-link">Team</a>
+    <a href="#faq" data-target="faq" class="nav-link">FAQ</a>
+    <a href="#changelog" data-target="changelog" class="nav-link">Changelog</a>
+  </nav>
 
-<nav class="sidebar" id="sidebar" aria-label="Main navigation">
-  <a href="#home" data-target="home" class="nav-link active">Home</a>
-  <a href="#team" data-target="team" class="nav-link">Team</a>
-  <a href="#faq" data-target="faq" class="nav-link">FAQ</a>
-  <a href="#changelog" data-target="changelog" class="nav-link">Changelog</a>
-</nav>
+  <div class="version-badge">v0.1</div>
+  <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
 
-<div class="version-badge">v0.1</div>
-
-<div id="overlay" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0.95),rgba(0,0,0,0.97));">
-  <div style="text-align:center;color:#fff;max-width:640px;padding:20px;">
-    <div style="font-family:'Roboto Mono';letter-spacing:2px;font-weight:700;margin-bottom:14px;color:#ddd;font-size:1rem">FOURCLIENT</div>
-    <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px">Press <span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Enter</span> to open site</div>
-    <div style="color:var(--muted);margin-top:8px">or <button id="openBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;color:#fff;border-radius:8px;cursor:pointer">Click to enter</button></div>
-    <p style="color:var(--muted);margin-top:18px;font-size:.9rem">Pressing Enter will reveal the site — this is a simple entrance effect.</p>
+  <div id="overlay" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0.95),rgba(0,0,0,0.97));">
+    <div style="text-align:center;color:#fff;max-width:640px;padding:20px;">
+      <div class="logo-anim" style="font-family:'Roboto Mono';letter-spacing:2px;font-weight:700;margin-bottom:14px;color:#ddd;font-size:1rem">FOURCLIENT</div>
+      <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px">Press <span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Enter</span> to open site</div>
+      <div style="color:var(--muted);margin-top:8px">or <button id="openBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;color:#fff;border-radius:8px;cursor:pointer">Click to enter</button></div>
+      <p style="color:var(--muted);margin-top:18px;font-size:.9rem">Pressing Enter will reveal the site — this is a simple entrance effect.</p>
+    </div>
   </div>
-</div>
 
-<main class="container" id="main">
+  <main class="container" id="main">
+    <header id="home" class="hero" role="banner">
+      <h1 class="title" aria-label="FourClient"><span id="typeTitle" style="font-family:'Roboto Mono';"></span><span class="cursor" id="titleCursor" aria-hidden="true"></span></h1>
+      <p class="lead muted reveal">fourclient. 1.21.4</p>
+      <div class="buttons reveal" style="transition-delay:120ms">
+        <a class="btn floating" id="joinDiscord" href="https://discord.gg/qBWN4mgN5z" target="_blank" rel="noopener">Discord (<span id="discordCount">...</span>)</a>
+        <a class="btn floating" id="joinTelegram" href="https://t.me/fourclient" target="_blank" rel="noopener">Telegram</a>
+        <a class="btn floating" id="viewGit" href="https://github.com/fuck777angel" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </header>
 
-  <header id="home" class="hero" role="banner">
-    <h1 class="title" aria-label="FourClient"><span id="typeTitle" style="font-family:'Roboto Mono';"></span><span class="cursor" id="titleCursor" aria-hidden="true"></span></h1>
-    <p class="lead muted reveal">Minecraft client — lightweight, clean and focused on performance.</p>
+    <section id="features" class="reveal">
+      <div class="section-inner">
+        <h2>Features</h2>
+        <div class="features-grid">
+          <div class="feature-card"><div class="icon">⚡</div><h3>Speed</h3><p class="muted">Optimized for low-end devices, ensuring smooth gameplay.</p></div>
+          <div class="feature-card"><div class="icon">🔒</div><h3>Security</h3><p class="muted">No malware, safe for server play.</p></div>
+          <div class="feature-card"><div class="icon">🛠</div><h3>Stability</h3><p class="muted">Reliable performance across platforms.</p></div>
+        </div>
+      </div>
+    </section>
 
-    <div class="buttons reveal" style="transition-delay:120ms">
-      <a class="btn" id="joinDiscord">Discord</a>
-      <a class="btn" id="joinTelegram" href="https://t.me/" target="_blank" rel="noopener">Telegram</a>
-      <a class="btn" id="viewGit" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </div>
-  </header>
+    <section id="why" class="reveal">
+      <div class="section-inner">
+        <h2>Why FourClient?</h2>
+        <ul class="why-list muted">
+          <li>Lightweight and fast, even on older hardware.</li>
+          <li>Cross-platform support: Windows, Linux, macOS.</li>
+          <li>Community-driven with open-source development.</li>
+          <li>Regular updates and active support via Discord.</li>
+        </ul>
+      </div>
+    </section>
 
-  <section id="team" class="reveal">
-    <div class="section-inner">
-      <h2>Team</h2>
-
-      <div style="margin-top:12px" class="team-card">
-        <div class="avatar">F7A</div>
-        <div class="team-meta">
-          <div style="display:flex;gap:8px;align-items:center">
-            <div style="font-weight:700">Developer</div>
-            <div style="font-family:'Roboto Mono';color:var(--muted)">• GitHub</div>
-          </div>
-          <div style="margin-top:6px">
-            <a href="https://github.com/fuck777angel" target="_blank" rel="noopener">@fuck777angel</a>
-            <div class="role" style="margin-top:6px">Lead developer & maintainer</div>
+    <section id="team" class="reveal">
+      <div class="section-inner">
+        <h2>Team</h2>
+        <div class="team-card">
+          <div class="avatar">F7A</div>
+          <div class="team-meta">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="font-weight:700">Developer</div>
+              <div style="font-family:'Roboto Mono';color:var(--muted)">• GitHub</div>
+            </div>
+            <div style="margin-top:6px">
+              <a href="https://github.com/fuck777angel" target="_blank" rel="noopener">@fuck777angel</a>
+              <div class="role" style="margin-top:6px">Lead developer & maintainer</div>
+            </div>
           </div>
         </div>
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <section id="faq" class="reveal">
-    <div class="section-inner">
-      <h2>FAQ</h2>
-      <div style="margin-top:12px" class="faq">
-        <details class="faq-item">
-          <summary>What platforms does FourClient support?</summary>
-          <p>FourClient is distributed as a cross-platform client for Windows, Linux and macOS (native builds). Platform-specific installers and portable archives are provided when available.</p>
-        </details>
-
-        <details class="faq-item">
-          <summary>Is FourClient safe to use with servers?</summary>
-          <p>Yes — FourClient does not include malware or cheating tools. Use of third-party mods and server plugins may affect compatibility; always follow server rules.</p>
-        </details>
-
-        <details class="faq-item">
-          <summary>How do I update FourClient?</summary>
-          <p>Updates are published on the GitHub releases page. You can enable automatic update checks in future versions; for now, download the latest release and replace the executable.</p>
-        </details>
-
-        <details class="faq-item">
-          <summary>Can I request features or report bugs?</summary>
-          <p>Yes — open an issue on the GitHub repo or join the Discord community via the Discord button above. Provide logs and steps to reproduce when reporting bugs.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <section id="changelog" class="reveal">
-    <div class="section-inner">
-      <h2>Changelog</h2>
-      <div style="margin-top:12px" class="changelog">
-        <div class="log-entry">
-          <div class="meta">10.10.2025 — v0.1</div>
-          <div style="margin-top:6px">Initial release: Create Project</div>
+    <section id="faq" class="reveal">
+      <div class="section-inner">
+        <h2>FAQ</h2>
+        <div class="faq">
+          <details class="faq-item">
+            <summary>What platforms does FourClient support?</summary>
+            <p>FourClient is distributed as a cross-platform client for Windows, Linux and macOS (native builds). Platform-specific installers and portable archives are provided when available.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is FourClient safe to use with servers?</summary>
+            <p>Yes — FourClient does not include malware or cheating tools. Use of third-party mods and server plugins may affect compatibility; always follow server rules.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How do I update FourClient?</summary>
+            <p>Updates are published on the GitHub releases page. You can enable automatic update checks in future versions; for now, download the latest release and replace the executable.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I request features or report bugs?</summary>
+            <p>Yes — open an issue on the GitHub repo or join the Discord community via the Discord button above. Provide logs and steps to reproduce when reporting bugs.</p>
+          </details>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <footer class="site-footer">
-    hatred © fourclient 2025.
-  </footer>
+    <section id="changelog" class="reveal">
+      <div class="section-inner">
+        <h2>Changelog</h2>
+        <div class="changelog">
+          <div class="log-entry">
+            <div class="meta">10.10.2025 — v0.1</div>
+            <div style="margin-top:6px">Initial release: Create Project</div>
+          </div>
+        </div>
+        <div class="github-commits" id="githubCommits"></div>
+      </div>
+    </section>
 
-</main>
+    <footer class="site-footer">
+      Made with ❤️ by <a href="https://github.com/fuck777angel" target="_blank" rel="noopener">fuck777angel</a> © FourClient 2025.
+    </footer>
+  </main>
 
-<button id="toTop" title="Back to top" aria-label="Back to top" style="display:none">↑</button>
+  <button id="toTop" title="Back to top" aria-label="Back to top" style="display:none">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--fg)" stroke-width="2">
+      <path d="M12 19V5m-7 7l7-7 7 7"/>
+    </svg>
+  </button>
 
-<script>
-const webhookUrl = "https://discordapp.com/api/webhooks/1426261584833024146/0gVQ2Xy7EmvOigtQniXWnS3JFdeqOE9m8f9E3HydqrBGVT4YUEQ-RcYsXIt_9cwRg4d5"; 
-const discordInvite = "https://discord.gg/qBWN4mgN5z";
-const gitHubUrl = "https://github.com/fuck777angel";
-
-const overlay = document.getElementById('overlay');
-const openBtn = document.getElementById('openBtn');
-
-function openSite() {
-  if (!overlay) return;
-  overlay.style.transition = 'opacity 420ms ease';
-  overlay.style.opacity = '0';
-  setTimeout(()=> overlay.remove(), 420);
-  setTimeout(()=> initReveal(), 120);
-}
-openBtn.addEventListener('click', openSite);
-document.addEventListener('keydown', (e)=>{
-  if (e.key === 'Enter') openSite();
-});
-
-const titleText = "FourClient.";
-const typeTarget = document.getElementById('typeTitle');
-const cursorEl = document.getElementById('titleCursor');
-let tIndex = 0;
-function typeTick(){
-  if (tIndex <= titleText.length){
-    typeTarget.textContent = titleText.slice(0,tIndex);
-    tIndex++;
-    setTimeout(typeTick, 100);
-  } else {
-    cursorEl.style.display = 'inline-block';
-  }
-}
-setTimeout(()=> {
-  if (!document.body.contains(overlay)) typeTick();
-}, 300);
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  if (!document.body.contains(overlay)) typeTick();
-});
-
-const revealElements = () => document.querySelectorAll('.reveal');
-
-function initReveal(){
-  const els = revealElements();
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.classList.add('show');
-        obs.unobserve(entry.target);
-      }
-    });
-  }, {threshold: 0.12});
-  els.forEach(el => obs.observe(el));
-}
-
-const navLinks = document.querySelectorAll('.nav-link');
-const sections = Array.from(document.querySelectorAll('main section, header.hero'));
-const toTopBtn = document.getElementById('toTop');
-
-function setActiveLink(){
-  const scrollY = window.scrollY;
-  let currentId = 'home';
-  for (let sec of sections){
-    if (sec.offsetTop - 120 <= scrollY){
-      currentId = sec.id || 'home';
-    }
-  }
-  navLinks.forEach(a=>{
-    a.classList.toggle('active', a.getAttribute('data-target') === currentId);
-  });
-}
-setActiveLink();
-window.addEventListener('scroll', setActiveLink);
-
-navLinks.forEach(a=>{
-  a.addEventListener('click', (e)=>{
-    e.preventDefault();
-    const tgt = a.getAttribute('href') || ('#' + a.dataset.target);
-    const el = document.querySelector(tgt);
-    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-  });
-});
-
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click', ()=>{});
-});
-
-window.addEventListener('scroll', ()=>{
-  if (window.scrollY > 300) toTopBtn.style.display = 'flex';
-  else toTopBtn.style.display = 'none';
-});
-toTopBtn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
-
-const progress = document.getElementById('progress');
-function updateProgress(){
-  const doc = document.documentElement;
-  const pct = (window.scrollY / (doc.scrollHeight - doc.clientHeight)) * 100;
-  progress.style.width = pct + "%";
-}
-updateProgress();
-window.addEventListener('scroll', updateProgress);
-window.addEventListener('resize', updateProgress);
-
-let lastScroll = window.scrollY;
-const sidebar = document.getElementById('sidebar');
-window.addEventListener('scroll', ()=>{
-  const cur = window.scrollY;
-  if (cur > lastScroll + 10) {
-    sidebar.classList.add('hide');
-  } else if (cur < lastScroll - 10) {
-    sidebar.classList.remove('hide');
-  }
-  lastScroll = cur;
-});
-
-document.getElementById('joinDiscord').addEventListener('click', async ()=>{
-  if (webhookUrl && webhookUrl.trim().length > 10){
-    try {
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({content: `Someone clicked Join Community on FourClient (v0.1)`})
-      });
-      alert('Discord webhook notified. Opening invite...');
-      window.open(discordInvite, '_blank');
-    } catch(err){
-      console.warn('Webhook failed', err);
-      window.open(discordInvite, '_blank');
-    }
-  } else {
-    window.open(discordInvite, '_blank');
-  }
-});
-
-document.getElementById('viewGit').addEventListener('click', ()=>{
-  window.open(gitHubUrl, '_blank');
-});
-
-document.getElementById('dlStable').addEventListener('click', (e)=>{
-  e.preventDefault();
-  alert('Downloading stable build — demo link. Replace with actual file URL.');
-});
-document.getElementById('dlBeta').addEventListener('click', (e)=>{
-  e.preventDefault();
-  alert('Downloading beta build — demo link. Replace with actual file URL.');
-});
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  setTimeout(()=> {
-    if (!document.body.contains(overlay)) initReveal();
-    else {
-    }
-  }, 350);
-});
-
-document.addEventListener('transitionend', (ev)=>{
-  if(ev.target === overlay && ev.propertyName === 'opacity'){
-    initReveal();
-    if (!typeTarget.textContent) typeTick();
-  }
-});
-
-document.addEventListener('keyup', (e)=>{
-  if (e.key === 'Escape' && document.body.contains(overlay)){
-    openSite();
-  }
-});
-</script>
+  <script src="script.js"></script>
 </body>
 </html>
