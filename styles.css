@@ -7,7 +7,7 @@
   --trans-dur: 240ms;
   --max-width: 1100px;
   --glow: rgba(255, 255, 255, 0.3);
-  --enchant-glow: rgba(128, 0, 255, 0.5); /* Для эффекта зачарования */
+  --enchant-glow: rgba(128, 0, 255, 0.5);
 }
 
 [data-theme="light"] {
