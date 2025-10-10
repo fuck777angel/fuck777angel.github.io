@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>> FourClient</title>
-  <meta name="description" content="FourClient — lightweight Minecraft client. Fast, clean, reliable. v0.1" />
+  <meta name="description" content="FourClient — best client" />
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -12,22 +12,14 @@
   <div class="bg" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="particles" id="particles"></div>
+  <div class="vignette" aria-hidden="true"></div>
   <div id="progress" aria-hidden="true"></div>
   <div id="loader" class="loader"><div class="dots"><span></span><span></span><span></span></div></div>
 
-  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
-    <a href="#home" data-target="home" class="nav-link active">Home</a>
-    <a href="#features" data-target="features" class="nav-link">Features</a>
-    <a href="#why" data-target="why" class="nav-link">Why FourClient?</a>
-    <a href="#team" data-target="team" class="nav-link">Team</a>
-    <a href="#faq" data-target="faq" class="nav-link">FAQ</a>
-    <a href="#changelog" data-target="changelog" class="nav-link">Changelog</a>
-  </nav>
 
   <div class="version-badge">v0.1</div>
-  <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
 
-  <div id="overlay" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0.95),rgba(0,0,0,0.97));">
+  <div id="overlay" class="blur-overlay">
     <div style="text-align:center;color:#fff;max-width:640px;padding:20px;">
       <div class="logo-anim" style="font-family:'Roboto Mono';letter-spacing:2px;font-weight:700;margin-bottom:14px;color:#ddd;font-size:1rem">FOURCLIENT</div>
       <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px">Press <span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Enter</span> to open site</div>
@@ -38,18 +30,19 @@
 
   <main class="container" id="main">
     <header id="home" class="hero" role="banner">
-      <h1 class="title" aria-label="FourClient"><span id="typeTitle" style="font-family:'Roboto Mono';"></span><span class="cursor" id="titleCursor" aria-hidden="true"></span></h1>
-      <p class="lead muted reveal">fourclient. 1.21.4</p>
+      <h1 class="title gradient-text" aria-label="FourClient"><span id="typeTitle" style="font-family:'Roboto Mono';"></span><span class="cursor" id="titleCursor" aria-hidden="true"></span></h1>
+      <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">fourclient. 1.21.4</span></div>
+      <p class="lead muted reveal">Minecraft client — lightweight, clean and focused on performance.</p>
       <div class="buttons reveal" style="transition-delay:120ms">
-        <a class="btn floating" id="joinDiscord" href="https://discord.gg/qBWN4mgN5z" target="_blank" rel="noopener">Discord (<span id="discordCount">...</span>)</a>
-        <a class="btn floating" id="joinTelegram" href="https://t.me/fourclient" target="_blank" rel="noopener">Telegram</a>
-        <a class="btn floating" id="viewGit" href="https://github.com/fuck777angel" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn floating" id="joinDiscord" href="https://discord.gg/qBWN4mgN5z" target="_blank" rel="noopener"><span class="icon">💬</span> Discord (<span id="discordCount">...</span>)</a>
+        <a class="btn floating" id="joinTelegram" href="https://t.me/fourclient" target="_blank" rel="noopener"><span class="icon">📬</span> Telegram</a>
+        <a class="btn floating" id="viewGit" href="https://github.com/fuck777angel" target="_blank" rel="noopener"><span class="icon">🐙</span> GitHub</a>
       </div>
     </header>
 
     <section id="features" class="reveal">
       <div class="section-inner">
-        <h2>Features</h2>
+        <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Features</span></div>
         <div class="features-grid">
           <div class="feature-card"><div class="icon">⚡</div><h3>Speed</h3><p class="muted">Optimized for low-end devices, ensuring smooth gameplay.</p></div>
           <div class="feature-card"><div class="icon">🔒</div><h3>Security</h3><p class="muted">No malware, safe for server play.</p></div>
@@ -60,7 +53,7 @@
 
     <section id="why" class="reveal">
       <div class="section-inner">
-        <h2>Why FourClient?</h2>
+        <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Why FourClient?</span></div>
         <ul class="why-list muted">
           <li>Lightweight and fast, even on older hardware.</li>
           <li>Cross-platform support: Windows, Linux, macOS.</li>
@@ -72,7 +65,7 @@
 
     <section id="team" class="reveal">
       <div class="section-inner">
-        <h2>Team</h2>
+        <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Team</span></div>
         <div class="team-card">
           <div class="avatar">F7A</div>
           <div class="team-meta">
@@ -91,7 +84,7 @@
 
     <section id="faq" class="reveal">
       <div class="section-inner">
-        <h2>FAQ</h2>
+        <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">FAQ</span></div>
         <div class="faq">
           <details class="faq-item">
             <summary>What platforms does FourClient support?</summary>
@@ -115,7 +108,7 @@
 
     <section id="changelog" class="reveal">
       <div class="section-inner">
-        <h2>Changelog</h2>
+        <div style="font-size:1.6rem;font-weight:600;margin-bottom:10px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:#111;border:1px solid rgba(255,255,255,0.06)">Changelog</span></div>
         <div class="changelog">
           <div class="log-entry">
             <div class="meta">10.10.2025 — v0.1</div>
@@ -126,8 +119,13 @@
       </div>
     </section>
 
-    <footer class="site-footer">
+    <footer class="site-footer glow-footer">
       Made with ❤️ by <a href="https://github.com/fuck777angel" target="_blank" rel="noopener">fuck777angel</a> © FourClient 2025.
+      <div class="social-icons">
+        <a href="https://discord.gg/qBWN4mgN5z" class="social-icon" data-tooltip="Join our Discord">💬</a>
+        <a href="https://t.me/fourclient" class="social-icon" data-tooltip="Join our Telegram">📬</a>
+        <a href="https://github.com/fuck777angel" class="social-icon" data-tooltip="View our GitHub">🐙</a>
+      </div>
     </footer>
   </main>
 
@@ -137,6 +135,7 @@
     </svg>
   </button>
 
+  <div class="tooltip" id="tooltip"></div>
   <script src="script.js"></script>
 </body>
 </html>

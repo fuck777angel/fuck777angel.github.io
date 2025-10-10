@@ -8,9 +8,10 @@ const loader = document.getElementById('loader');
 
 function openSite() {
   if (!overlay) return;
-  overlay.style.transition = 'opacity 420ms ease';
+  overlay.style.transition = 'opacity 600ms ease, backdrop-filter 600ms ease';
   overlay.style.opacity = '0';
-  setTimeout(() => overlay.remove(), 420);
+  overlay.style.backdropFilter = 'blur(0px)';
+  setTimeout(() => overlay.remove(), 600);
   setTimeout(() => initReveal(), 120);
 }
 
@@ -60,35 +61,7 @@ function initReveal() {
   els.forEach(el => obs.observe(el));
 }
 
-const navLinks = document.querySelectorAll('.nav-link');
-const sections = Array.from(document.querySelectorAll('main section, header.hero'));
 const toTopBtn = document.getElementById('toTop');
-
-function setActiveLink() {
-  const scrollY = window.scrollY;
-  let currentId = 'home';
-  for (let sec of sections) {
-    if (sec.offsetTop - 120 <= scrollY) {
-      currentId = sec.id || 'home';
-    }
-  }
-  navLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('data-target') === currentId);
-  });
-}
-
-setActiveLink();
-window.addEventListener('scroll', setActiveLink);
-
-navLinks.forEach(a => {
-  a.addEventListener('click', (e) => {
-    e.preventDefault();
-    const tgt = a.getAttribute('href') || ('#' + a.dataset.target);
-    const el = document.querySelector(tgt);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-});
-
 window.addEventListener('scroll', () => {
   if (window.scrollY > 300) toTopBtn.style.display = 'flex';
   else toTopBtn.style.display = 'none';
@@ -106,18 +79,6 @@ function updateProgress() {
 updateProgress();
 window.addEventListener('scroll', updateProgress);
 window.addEventListener('resize', updateProgress);
-
-let lastScroll = window.scrollY;
-const sidebar = document.getElementById('sidebar');
-window.addEventListener('scroll', () => {
-  const cur = window.scrollY;
-  if (cur > lastScroll + 10) {
-    sidebar.classList.add('hide');
-  } else if (cur < lastScroll - 10) {
-    sidebar.classList.remove('hide');
-  }
-  lastScroll = cur;
-});
 
 document.getElementById('joinDiscord').addEventListener('click', async () => {
   if (webhookUrl && webhookUrl.trim().length > 10) {
@@ -146,17 +107,81 @@ document.addEventListener('mousemove', (e) => {
   const bg = document.querySelector('.bg');
   const moveX = (e.clientX / window.innerWidth - 0.5) * 20;
   const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
-  bg.style.transform = `translate(${moveX}px, ${moveY}px)`;
+  bg.style.transform = `translate(${moveX}px, ${moveY}px) rotateX(${moveY / 2}deg) rotateY(${moveX / 2}deg)`;
 });
 
-// Custom Cursor with Trail
-const cursor = document.createElement('div');
-cursor.className = 'cursor trail';
-document.body.appendChild(cursor);
+// Ripple Effect on Click
+document.querySelectorAll('.btn, #toTop, .theme-toggle').forEach(el => {
+  el.addEventListener('click', (e) => {
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    const rect = el.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = e.clientX - rect.left - size / 2 + 'px';
+    ripple.style.top = e.clientY - rect.top - size / 2 + 'px';
+    el.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+});
 
-document.addEventListener('mousemove', (e) => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
+// Particle Explosion on Click
+document.addEventListener('click', (e) => {
+  for (let i = 0; i < 10; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = e.clientX + 'px';
+    particle.style.top = e.clientY + 'px';
+    particle.style.animation = `explode ${Math.random() * 0.5 + 0.5}s ease-out`;
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1000);
+  }
+});
+
+// Minecraft Block Break Effect
+document.querySelectorAll('.feature-card, .team-card, .faq-item, .log-entry, .commit-card').forEach(el => {
+  el.addEventListener('click', (e) => {
+    for (let i = 0; i < 8; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'block-particle';
+      particle.style.left = e.clientX + 'px';
+      particle.style.top = e.clientY + 'px';
+      particle.style.setProperty('--rx', Math.random() * 2 - 1);
+      particle.style.setProperty('--ry', Math.random() * 2 - 1);
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 800);
+    }
+  });
+});
+
+// Pixel Dust Effect
+document.querySelectorAll('.feature-card, .team-card, .faq-item, .log-entry, .commit-card').forEach(el => {
+  el.addEventListener('mouseenter', (e) => {
+    for (let i = 0; i < 5; i++) {
+      const dust = document.createElement('div');
+      dust.className = 'pixel-dust';
+      dust.style.left = e.clientX + 'px';
+      dust.style.top = e.clientY + 'px';
+      dust.style.setProperty('--dx', Math.random() * 2 - 1);
+      dust.style.setProperty('--dy', Math.random() * 2 - 1);
+      document.body.appendChild(dust);
+      setTimeout(() => dust.remove(), 600);
+    }
+  });
+});
+
+// Floating Tooltips
+const tooltip = document.getElementById('tooltip');
+document.querySelectorAll('.btn, .social-icon, .team-card a, #toTop, .theme-toggle').forEach(el => {
+  el.addEventListener('mouseenter', (e) => {
+    tooltip.textContent = el.dataset.tooltip || el.textContent || el.getAttribute('title') || 'Action';
+    tooltip.style.opacity = '1';
+    tooltip.style.left = e.clientX + 10 + 'px';
+    tooltip.style.top = e.clientY + 10 + 'px';
+  });
+  el.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = '0';
+  });
 });
 
 // Theme Toggle
@@ -167,13 +192,14 @@ themeToggle.addEventListener('click', () => {
   themeToggle.textContent = html.dataset.theme === 'dark' ? '🌙' : '☀';
 });
 
-// Particles Background
+// Particles Background (Pixel Rain)
 const particles = document.getElementById('particles');
 for (let i = 0; i < 50; i++) {
   const particle = document.createElement('div');
-  particle.className = 'particle';
+  particle.className = Math.random() > 0.5 ? 'pixel-rain' : 'particle';
   particle.style.left = Math.random() * 100 + 'vw';
   particle.style.animationDuration = Math.random() * 10 + 5 + 's';
+  particle.style.animationDelay = Math.random() * 5 + 's';
   particles.appendChild(particle);
 }
 
@@ -210,8 +236,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === konamiCode[konamiIndex]) {
     konamiIndex++;
     if (konamiIndex === konamiCode.length) {
-      alert('Konami Code Activated! ✨ Enjoy the sparkles!');
       document.body.style.animation = 'sparkle 2s infinite';
+      alert('Konami Code Activated! ✨ Sparkles everywhere!');
     }
   } else {
     konamiIndex = 0;
@@ -226,37 +252,3 @@ setInterval(() => {
   title.textContent = titleStates[titleIndex];
   titleIndex = (titleIndex + 1) % titleStates.length;
 }, 1000);
-
-// i18n (Simple)
-const translations = {
-  en: {
-    home: 'Home',
-    features: 'Features',
-    why: 'Why FourClient?',
-    team: 'Team',
-    faq: 'FAQ',
-    changelog: 'Changelog',
-  },
-  ru: {
-    home: 'Главная',
-    features: 'Особенности',
-    why: 'Почему FourClient?',
-    team: 'Команда',
-    faq: 'ЧаВО',
-    changelog: 'История изменений',
-  }
-};
-
-function setLanguage(lang) {
-  document.querySelectorAll('.nav-link').forEach((link, i) => {
-    const key = Object.keys(translations.en)[i];
-    link.textContent = translations[lang][key];
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  setLanguage('en');
-  document.querySelector('.theme-toggle').addEventListener('click', () => {
-    setLanguage(document.documentElement.dataset.theme === 'dark' ? 'en' : 'ru');
-  });
-});
