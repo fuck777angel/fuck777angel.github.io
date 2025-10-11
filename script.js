@@ -105,7 +105,6 @@ document.getElementById('viewGit').addEventListener('click', () => {
   window.open(gitHubUrl, '_blank');
 });
 
-// 3D Parallax Background
 document.addEventListener('mousemove', (e) => {
   const bg = document.querySelector('.bg');
   const moveX = (e.clientX / window.innerWidth - 0.5) * 20;
@@ -113,7 +112,6 @@ document.addEventListener('mousemove', (e) => {
   bg.style.transform = `translate(${moveX}px, ${moveY}px) rotateX(${moveY / 2}deg) rotateY(${moveX / 2}deg)`;
 });
 
-// Ripple Effect on Click
 document.querySelectorAll('.btn, #toTop, .theme-toggle').forEach(el => {
   el.addEventListener('click', (e) => {
     const ripple = document.createElement('span');
@@ -128,7 +126,6 @@ document.querySelectorAll('.btn, #toTop, .theme-toggle').forEach(el => {
   });
 });
 
-// Particle Explosion on Click
 document.addEventListener('click', (e) => {
   for (let i = 0; i < 10; i++) {
     const particle = document.createElement('div');
@@ -141,7 +138,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Minecraft Block Break Effect
 document.querySelectorAll('.feature-card, .team-card, .faq-item, .log-entry, .commit-card').forEach(el => {
   el.addEventListener('click', (e) => {
     for (let i = 0; i < 8; i++) {
@@ -157,7 +153,6 @@ document.querySelectorAll('.feature-card, .team-card, .faq-item, .log-entry, .co
   });
 });
 
-// Pixel Dust Effect
 document.querySelectorAll('.feature-card, .team-card, .faq-item, .log-entry, .commit-card').forEach(el => {
   el.addEventListener('mouseenter', (e) => {
     for (let i = 0; i < 5; i++) {
@@ -173,7 +168,6 @@ document.querySelectorAll('.feature-card, .team-card, .faq-item, .log-entry, .co
   });
 });
 
-// Floating Tooltips
 const tooltip = document.getElementById('tooltip');
 document.querySelectorAll('.btn, .social-icon, .team-card a, #toTop, .theme-toggle').forEach(el => {
   el.addEventListener('mouseenter', (e) => {
@@ -187,7 +181,6 @@ document.querySelectorAll('.btn, .social-icon, .team-card a, #toTop, .theme-togg
   });
 });
 
-// Theme Toggle
 const themeToggle = document.querySelector('.theme-toggle');
 themeToggle.addEventListener('click', () => {
   const html = document.documentElement;
@@ -195,7 +188,6 @@ themeToggle.addEventListener('click', () => {
   themeToggle.textContent = html.dataset.theme === 'dark' ? '🌙' : '☀';
 });
 
-// Particles Background (Pixel Rain)
 const particles = document.getElementById('particles');
 for (let i = 0; i < 50; i++) {
   const particle = document.createElement('div');
@@ -206,7 +198,6 @@ for (let i = 0; i < 50; i++) {
   particles.appendChild(particle);
 }
 
-// GitHub Commits
 async function fetchCommits() {
   try {
     const res = await fetch('https://api.github.com/repos/fuck777angel/fourclient/commits?per_page=3');
@@ -226,12 +217,10 @@ async function fetchCommits() {
 
 fetchCommits();
 
-// Discord User Count (Mock)
 setTimeout(() => {
   document.getElementById('discordCount').textContent = '1.2K';
 }, 1000);
 
-// Konami Code Easter Egg
 const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 let konamiIndex = 0;
 
@@ -247,7 +236,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Title Animation
 const title = document.querySelector('title');
 let titleIndex = 0;
 const titleStates = ['> FourClient', '>> FourClient', '>>> FourClient', ' FourClient'];
@@ -256,7 +244,6 @@ setInterval(() => {
   titleIndex = (titleIndex + 1) % titleStates.length;
 }, 1000);
 
-// Particles Trail
 document.addEventListener('mousemove', (e) => {
   const trail = document.createElement('div');
   trail.className = 'trail-particle';
@@ -266,7 +253,6 @@ document.addEventListener('mousemove', (e) => {
   setTimeout(() => trail.remove(), 800);
 });
 
-// Magnetic Cursor Effect
 document.querySelectorAll('.btn, #toTop, .social-icon').forEach(el => {
   el.addEventListener('mousemove', (e) => {
     const rect = el.getBoundingClientRect();
