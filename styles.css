@@ -7,7 +7,7 @@
   --trans-dur: 240ms;
   --max-width: 1100px;
   --glow: rgba(255, 255, 255, 0.3);
-  --enchant-glow: rgba(128, 0, 255, 0.5);
+  --enchant-glow: rgba(252, 0, 42, 0.527);
 }
 
 [data-theme="light"] {
@@ -16,7 +16,7 @@
   --muted: #666;
   --glass: rgba(0, 0, 0, 0.04);
   --glow: rgba(0, 0, 0, 0.2);
-  --enchant-glow: rgba(128, 0, 255, 0.5);
+  --enchant-glow: rgba(252, 0, 42, 0.527);
 }
 
 * {
@@ -47,7 +47,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: url('https://ic.pics.livejournal.com/njkntr/85395137/789525/789525_original.png') center/cover no-repeat;
+  background: url('https://i.pinimg.com/736x/00/c6/7e/00c67e7bb0f085a29f4afe07a91f5fd4.jpg') center/cover no-repeat;
   filter: grayscale(100%) brightness(0.7);
   opacity: 0.20;
   transform: translateZ(0);
@@ -285,7 +285,7 @@ p.lead {
 .btn {
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(252, 0, 42, 0.527);
   background: var(--glass);
   color: var(--fg);
   text-decoration: none;
@@ -426,6 +426,7 @@ h2 {
   text-align: center;
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(252, 0, 42, 0.527);
   transition: transform 200ms ease, box-shadow 200ms ease;
   position: relative;
   transform-style: preserve-3d;
@@ -508,7 +509,7 @@ h2 {
   font-weight: 700;
   color: #bbb;
   font-size: 1.1rem;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(252, 0, 42, 0.527);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: box-shadow 200ms ease;
 }
@@ -540,7 +541,7 @@ h2 {
   padding: 12px;
   border-radius: 12px;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(252, 0, 42, 0.527);
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   transform: scale(0.95);
@@ -578,7 +579,7 @@ h2 {
   background: var(--glass);
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(252, 0, 42, 0.527);
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
@@ -610,7 +611,7 @@ h2 {
   bottom: 18px;
   z-index: 60;
   background: var(--glass);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(252, 0, 42, 0.527);
   color: var(--fg);
   padding: 10px;
   border-radius: 50%;
