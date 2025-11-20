@@ -1,22 +1,10 @@
-// Подключение Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-// Конфигурация Firebase (создай проект на firebase.google.com)
-const firebaseConfig = {
-    apiKey: "AIzaSyAeWI0884eQM0MnQTpgDty48TNv1LiT4cA",
-    authDomain: "greenfood-2cddb.firebaseapp.com",
-    databaseURL: "https://greenfood-2cddb-default-rtdb.firebaseio.com",
-    projectId: "greenfood-2cddb",
-    storageBucket: "greenfood-2cddb.firebasestorage.app",
-    messagingSenderId: "166471498086",
-    appId: "1:166471498086:web:5efb7f530ddbf2264cb0a7"
+const JSONBIN_CONFIG = {
+    API_KEY: '$2a$10$UJIWAm1R9zG.bfrGrfHUfuvZEkCXvtnBLKf70M7spW3yaR3XXMu0a', // Замени на свой API ключ
+    BIN_ID: '691f09a0d0ea881f40f46c5c', // Замени на свой BIN ID
+    BASE_URL: 'https://api.jsonbin.io/v3'
 };
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-
+// Переменные
 let users = [];
 let expenses = [];
 let selectedUsers = new Set();
@@ -33,90 +21,68 @@ const PRICES = {
     'Power 4XL': 400000
 };
 
-function logout() {
-    if (confirm('Вы уверены, что хотите выйти?')) {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('currentUser');
-        showLoginPage();
-    }
-}
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function () {
+    initApp();
+});
 
-// Firebase функции
+// ========== JSONBIN ФУНКЦИИ ==========
 async function loadData() {
     try {
-        const usersRef = ref(database, 'users');
-        const expensesRef = ref(database, 'expenses');
+        const response = await fetch(`${JSONBIN_CONFIG.BASE_URL}/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
+            headers: {
+                'X-Master-Key': JSONBIN_CONFIG.API_KEY
+            }
+        });
 
-        // Загрузка пользователей
-        const usersSnapshot = await get(usersRef);
-        if (usersSnapshot.exists()) {
-            users = Object.values(usersSnapshot.val());
-        } else {
-            users = [];
+        if (!response.ok) {
+            throw new Error('Ошибка загрузки данных');
         }
 
-        // Загрузка расходов
-        const expensesSnapshot = await get(expensesRef);
-        if (expensesSnapshot.exists()) {
-            expenses = Object.values(expensesSnapshot.val());
-        } else {
-            expenses = [];
-        }
+        const data = await response.json();
+        users = data.record.users || [];
+        expenses = data.record.expenses || [];
 
         renderUsers();
         updateStatistics();
         renderBazaarPage();
 
-        // Подписка на изменения в реальном времени
-        onValue(usersRef, (snapshot) => {
-            if (snapshot.exists()) {
-                users = Object.values(snapshot.val());
-                renderUsers();
-                updateStatistics();
-            }
-        });
-
-        onValue(expensesRef, (snapshot) => {
-            if (snapshot.exists()) {
-                expenses = Object.values(snapshot.val());
-                renderBazaarPage();
-                updateStatistics();
-            }
-        });
-
+        console.log('✅ Данные загружены:', { users: users.length, expenses: expenses.length });
     } catch (error) {
-        console.error('Ошибка загрузки:', error);
-        alert('❌ Ошибка загрузки данных!');
+        console.error('❌ Ошибка загрузки:', error);
+        alert('❌ Ошибка загрузки данных! Проверь API ключ и BIN ID');
     }
 }
 
-async function saveUsers() {
+async function saveData() {
     try {
-        const usersRef = ref(database, 'users');
-        const usersObject = {};
-        users.forEach(user => {
-            usersObject[user.id] = user;
+        const response = await fetch(`${JSONBIN_CONFIG.BASE_URL}/b/${JSONBIN_CONFIG.BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_CONFIG.API_KEY
+            },
+            body: JSON.stringify({
+                users: users,
+                expenses: expenses
+            })
         });
-        await set(usersRef, usersObject);
+
+        if (!response.ok) {
+            throw new Error('Ошибка сохранения данных');
+        }
+
+        console.log('✅ Данные сохранены');
     } catch (error) {
-        console.error('Ошибка сохранения:', error);
+        console.error('❌ Ошибка сохранения:', error);
         alert('❌ Ошибка сохранения данных!');
     }
 }
 
-async function saveExpenses() {
-    try {
-        const expensesRef = ref(database, 'expenses');
-        const expensesObject = {};
-        expenses.forEach(expense => {
-            expensesObject[expense.id] = expense;
-        });
-        await set(expensesRef, expensesObject);
-    } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        alert('❌ Ошибка сохранения данных!');
-    }
-}
+// Автообновление данных каждые 5 секунд
+setInterval(async () => {
+    await loadData();
+}, 5000);
 
 function initApp() {
     loadTheme();
@@ -144,13 +110,15 @@ function initApp() {
     });
 }
 
+// ========== ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ==========
+
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
 }
 
-function toggleTheme() {
+window.toggleTheme = function() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
@@ -163,7 +131,7 @@ function updateThemeIcon(theme) {
     if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
-function exportData() {
+window.exportData = function() {
     const data = {
         users: users,
         expenses: expenses,
@@ -186,11 +154,11 @@ function exportData() {
     alert('✅ Данные экспортированы!');
 }
 
-function importData() {
+window.importData = function() {
     document.getElementById('importFile').click();
 }
 
-async function handleImport(event) {
+window.handleImport = async function(event) {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -202,8 +170,8 @@ async function handleImport(event) {
             if (confirm(`Импортировать ${data.users?.length || 0} пользователей и ${data.expenses?.length || 0} расходов?`)) {
                 users = data.users || [];
                 expenses = data.expenses || [];
-                await saveUsers();
-                await saveExpenses();
+                await saveData();
+                await loadData();
                 alert('✅ Данные успешно импортированы!');
             }
         } catch (error) {
@@ -215,14 +183,14 @@ async function handleImport(event) {
     event.target.value = '';
 }
 
-function formatTelegram(input) {
+window.formatTelegram = function(input) {
     let value = input.value.trim();
     value = value.replace(/[^a-zA-Z0-9_@]/g, '');
     if (value && !value.startsWith('@')) value = '@' + value;
     input.value = value;
 }
 
-function calculatePrice() {
+window.calculatePrice = function() {
     const packageSelect = document.getElementById('package');
     const daysInput = document.getElementById('days');
     const priceCalc = document.getElementById('priceCalculation');
@@ -285,7 +253,7 @@ function formatPrice(price) {
     return new Intl.NumberFormat('ru-RU').format(price) + ' сум';
 }
 
-function showPage(pageId) {
+window.showPage = function(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
@@ -297,29 +265,29 @@ function showPage(pageId) {
     else if (pageId === 'bazaar') renderBazaarPage();
 }
 
-function openModal() {
+window.openModal = function() {
     document.getElementById('addModal').classList.add('active');
     calculatePrice();
 }
 
-function closeModal() {
+window.closeModal = function() {
     document.getElementById('addModal').classList.remove('active');
     document.getElementById('addUserForm').reset();
     document.getElementById('orderDate').valueAsDate = new Date();
     document.getElementById('priceCalculation').style.display = 'none';
 }
 
-function openExpenseModal() {
+window.openExpenseModal = function() {
     document.getElementById('expenseModal').classList.add('active');
 }
 
-function closeExpenseModal() {
+window.closeExpenseModal = function() {
     document.getElementById('expenseModal').classList.remove('active');
     document.getElementById('addExpenseForm').reset();
     document.getElementById('expenseDate').valueAsDate = new Date();
 }
 
-async function addUser(e) {
+window.addUser = async function(e) {
     e.preventDefault();
 
     const firstName = document.getElementById('firstName').value;
@@ -356,12 +324,13 @@ async function addUser(e) {
     };
 
     users.push(user);
-    await saveUsers();
+    await saveData();
+    await loadData();
     closeModal();
     alert('✅ Пользователь добавлен!');
 }
 
-async function addExpense(e) {
+window.addExpense = async function(e) {
     e.preventDefault();
 
     const description = document.getElementById('expenseDescription').value;
@@ -377,19 +346,21 @@ async function addExpense(e) {
     };
 
     expenses.push(expense);
-    await saveExpenses();
+    await saveData();
+    await loadData();
     closeExpenseModal();
     alert('✅ Расход добавлен!');
 }
 
-async function deleteExpense(expenseId) {
+window.deleteExpense = async function(expenseId) {
     if (confirm('Удалить этот расход?')) {
         expenses = expenses.filter(e => e.id !== expenseId);
-        await saveExpenses();
+        await saveData();
+        await loadData();
     }
 }
 
-function toggleUserSelection(userId) {
+window.toggleUserSelection = function(userId) {
     const card = document.querySelector(`[data-user-id="${userId}"]`);
     if (selectedUsers.has(userId)) {
         selectedUsers.delete(userId);
@@ -400,7 +371,7 @@ function toggleUserSelection(userId) {
     }
 }
 
-async function deleteSelected() {
+window.deleteSelected = async function() {
     if (selectedUsers.size === 0) {
         alert('Выберите пользователей для удаления');
         return;
@@ -410,11 +381,12 @@ async function deleteSelected() {
         const userIds = Array.from(selectedUsers);
         users = users.filter(u => !userIds.includes(u.id));
         selectedUsers.clear();
-        await saveUsers();
+        await saveData();
+        await loadData();
     }
 }
 
-async function togglePause(userId) {
+window.togglePause = async function(userId) {
     const user = users.find(u => u.id === userId);
     if (!user) return;
 
@@ -440,7 +412,8 @@ async function togglePause(userId) {
         }
     }
 
-    await saveUsers();
+    await saveData();
+    await loadData();
 }
 
 function calculateDaysRemaining(user) {
@@ -482,12 +455,12 @@ function getDaysRemainingClass(days) {
     return '';
 }
 
-function openTelegram(username) {
+window.openTelegram = function(username) {
     const cleanUsername = username.replace('@', '');
     window.open(`https://t.me/${cleanUsername}`, '_blank');
 }
 
-async function archiveExpired() {
+window.archiveExpired = async function() {
     const expiredUsers = users.filter(u => {
         const remaining = calculateDaysRemaining(u);
         return remaining < 0 && !u.archived;
@@ -500,13 +473,16 @@ async function archiveExpired() {
 
     if (confirm(`Архивировать ${expiredUsers.length} просроченных подписок?`)) {
         expiredUsers.forEach(user => user.archived = true);
-        await saveUsers();
+        await saveData();
+        await loadData();
         alert('✅ Просроченные подписки архивированы!');
     }
 }
 
+
 function renderUsers() {
     const container = document.getElementById('mainUsersList');
+
     const activeUsers = users.filter(u => {
         const remaining = calculateDaysRemaining(u);
         return remaining >= 0 && !u.archived;
@@ -529,13 +505,18 @@ function renderUsers() {
 
 function renderExpiredPage() {
     const container = document.getElementById('expiredList');
+
     const expiredUsers = users.filter(u => {
         const remaining = calculateDaysRemaining(u);
         return remaining < 0 && !u.archived;
     });
 
     if (expiredUsers.length === 0) {
-        container.innerHTML = `<div class="empty-state"><p>✅ Нет просроченных подписок</p></div>`;
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>✅ Нет просроченных подписок</p>
+            </div>
+        `;
         return;
     }
 
@@ -543,18 +524,28 @@ function renderExpiredPage() {
 }
 
 function renderBazaarPage() {
+    // Подсчет общего дохода
     const totalRevenue = users.reduce((sum, u) => sum + (u.price?.totalPrice || 0), 0);
+    
+    // Подсчет расходов
     const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+    
+    // Чистая прибыль
     const profit = totalRevenue - totalExpenses;
 
     document.getElementById('bazaarTotalRevenue').textContent = formatPrice(totalRevenue);
     document.getElementById('bazaarTotalExpenses').textContent = formatPrice(totalExpenses);
     document.getElementById('bazaarProfit').textContent = formatPrice(profit);
 
+    // Отображение списка расходов
     const expensesList = document.getElementById('expensesList');
     
     if (expenses.length === 0) {
-        expensesList.innerHTML = `<div class="empty-state"><p>📝 Расходов пока нет</p></div>`;
+        expensesList.innerHTML = `
+            <div class="empty-state">
+                <p>📝 Расходов пока нет</p>
+            </div>
+        `;
         return;
     }
 
@@ -589,15 +580,22 @@ function createExpiredUserCardHTML(user) {
             <div class="status-paused" style="background: rgba(231, 76, 60, 0.1); border-left-color: #e74c3c;">
                 ⚠️ Просрочено ${overdueDays} ${getDaysWord(overdueDays)}
             </div>
+            
             <div class="user-header">
                 <div class="user-name">${user.firstName} ${user.lastName}</div>
             </div>
+
             <div class="user-info">
                 ${user.phone ? `
                 <div class="info-row">
                     <span class="info-label">Телефон:</span>
-                    <span class="info-value"><a href="tel:${user.phone}" style="color: var(--text-primary); text-decoration: none;">${user.phone}</a></span>
-                </div>` : ''}
+                    <span class="info-value">
+                        <a href="tel:${user.phone}" style="color: var(--text-primary); text-decoration: none;">
+                            ${user.phone}
+                        </a>
+                    </span>
+                </div>
+                ` : ''}
                 ${user.telegram ? `
                 <div class="info-row">
                     <span class="info-label">Telegram:</span>
@@ -607,7 +605,8 @@ function createExpiredUserCardHTML(user) {
                         </svg>
                         ${user.telegram}
                     </a>
-                </div>` : ''}
+                </div>
+                ` : ''}
                 <div class="info-row">
                     <span class="info-label">Пакет:</span>
                     <span class="package-badge">${user.package}</span>
@@ -621,10 +620,12 @@ function createExpiredUserCardHTML(user) {
                     <span class="overdue-badge">${overdueDays} ${getDaysWord(overdueDays)}</span>
                 </div>
             </div>
+
             <div class="overdue-amount">
                 <div class="overdue-amount-label">К оплате за просрочку:</div>
                 <div class="overdue-amount-value">${formatPrice(overdueAmount)}</div>
             </div>
+
             ${user.telegram ? `
                 <div class="user-actions" style="margin-top: 12px;">
                     <button class="btn btn-small btn-telegram" onclick="openTelegram('${user.telegram}')">
@@ -633,7 +634,8 @@ function createExpiredUserCardHTML(user) {
                         </svg>
                         Написать
                     </button>
-                </div>` : ''}
+                </div>
+            ` : ''}
         </div>
     `;
 }
@@ -653,19 +655,28 @@ function createUserCardHTML(user, withCheckbox = false) {
     return `
         <div class="user-card ${selectedUsers.has(user.id) ? 'selected' : ''}" data-user-id="${user.id}">
             ${user.paused ? `<div class="status-paused">${pauseInfo}</div>` : ''}
+            
             <div class="user-header">
                 <div class="user-name">${user.firstName} ${user.lastName}</div>
                 ${withCheckbox ? `
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" ${selectedUsers.has(user.id) ? 'checked' : ''} onchange="toggleUserSelection(${user.id})">
-                </div>` : ''}
+                    <input type="checkbox" ${selectedUsers.has(user.id) ? 'checked' : ''} 
+                           onchange="toggleUserSelection(${user.id})">
+                </div>
+                ` : ''}
             </div>
+
             <div class="user-info">
                 ${user.phone ? `
                 <div class="info-row">
                     <span class="info-label">Телефон:</span>
-                    <span class="info-value"><a href="tel:${user.phone}" style="color: var(--text-primary); text-decoration: none;">${user.phone}</a></span>
-                </div>` : ''}
+                    <span class="info-value">
+                        <a href="tel:${user.phone}" style="color: var(--text-primary); text-decoration: none;">
+                            ${user.phone}
+                        </a>
+                    </span>
+                </div>
+                ` : ''}
                 ${user.telegram ? `
                 <div class="info-row">
                     <span class="info-label">Telegram:</span>
@@ -675,7 +686,8 @@ function createUserCardHTML(user, withCheckbox = false) {
                         </svg>
                         ${user.telegram}
                     </a>
-                </div>` : ''}
+                </div>
+                ` : ''}
                 <div class="info-row">
                     <span class="info-label">Пакет:</span>
                     <span class="package-badge">${user.package}</span>
@@ -693,7 +705,9 @@ function createUserCardHTML(user, withCheckbox = false) {
                 <div class="info-row">
                     <span class="info-label">Скидка:</span>
                     <span class="info-value" style="color: var(--accent-orange);">${user.price.discountPercent}% (-${formatPrice(user.price.discount)})</span>
-                </div>` : ''}` : ''}
+                </div>
+                ` : ''}
+                ` : ''}
                 <div class="info-row">
                     <span class="info-label">Дата заказа:</span>
                     <span class="info-value">${new Date(user.orderDate).toLocaleDateString('ru-RU')}</span>
@@ -702,7 +716,8 @@ function createUserCardHTML(user, withCheckbox = false) {
                 <div class="info-row">
                     <span class="info-label">Начало подписки:</span>
                     <span class="info-value">${new Date(user.startDate).toLocaleDateString('ru-RU')}</span>
-                </div>` : ''}
+                </div>
+                ` : ''}
                 <div class="info-row">
                     <span class="info-label">Окончание:</span>
                     <span class="info-value ${user.paused ? 'paused-text' : ''}">${endDate}</span>
@@ -716,9 +731,13 @@ function createUserCardHTML(user, withCheckbox = false) {
                 ${user.paused ? `
                 <div class="info-row">
                     <span class="info-label">Статус:</span>
-                    <span class="info-value" style="color: var(--accent-orange); font-weight: 600;">❄️ Заморожено</span>
-                </div>` : ''}
+                    <span class="info-value" style="color: var(--accent-orange); font-weight: 600;">
+                        ❄️ Заморожено
+                    </span>
+                </div>
+                ` : ''}
             </div>
+
             <div class="user-actions">
                 ${user.telegram ? `
                     <button class="btn btn-small btn-telegram" onclick="openTelegram('${user.telegram}')">
@@ -726,8 +745,10 @@ function createUserCardHTML(user, withCheckbox = false) {
                             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L8.08 13.73l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.827z"/>
                         </svg>
                         Перейти
-                    </button>` : ''}
-                <button class="btn btn-small ${user.paused ? 'btn-resume' : 'btn-pause'}" onclick="togglePause(${user.id})">
+                    </button>
+                ` : ''}
+                <button class="btn btn-small ${user.paused ? 'btn-resume' : 'btn-pause'}" 
+                        onclick="togglePause(${user.id})">
                     ${user.paused ? '▶️ Продолжить' : '⏸️ Взять отгул'}
                 </button>
             </div>
@@ -753,7 +774,11 @@ function renderFilteredUsers(filteredUsers) {
     const container = document.getElementById('usersList');
 
     if (filteredUsers.length === 0) {
-        container.innerHTML = `<div class="empty-state"><p>Пользователи не найдены</p></div>`;
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>Пользователи не найдены</p>
+            </div>
+        `;
         return;
     }
 
@@ -765,6 +790,7 @@ function renderFilteredUsers(filteredUsers) {
             <h2 style="margin-bottom: 16px; color: var(--accent-green);">Активные (${activeUsers.length})</h2>
             ${activeUsers.map(user => createUserCardHTML(user)).join('')}
         ` : ''}
+        
         ${pausedUsers.length > 0 ? `
             <h2 style="margin: 24px 0 16px; color: var(--accent-orange);">На паузе (${pausedUsers.length})</h2>
             ${pausedUsers.map(user => createUserCardHTML(user)).join('')}
@@ -800,7 +826,10 @@ function updateStatistics() {
     }).length;
 
     const totalRevenue = users.reduce((sum, u) => sum + (u.price?.totalPrice || 0), 0);
-    const overdueRevenue = users.reduce((sum, u) => sum + getOverdueAmount(u), 0);
+
+    const overdueRevenue = users.reduce((sum, u) => {
+        return sum + getOverdueAmount(u);
+    }, 0);
 
     document.getElementById('totalUsers').textContent = users.filter(u => !u.archived).length;
     document.getElementById('activeUsers').textContent = activeUsers;
@@ -835,9 +864,15 @@ function updateStatistics() {
 
 function updateDailyCountdown() {
     renderUsers();
-    const currentPage = document.querySelector('.page.active')?.id;
-    if (currentPage === 'users') renderUsersPage();
-    else if (currentPage === 'statistics') updateStatistics();
-    else if (currentPage === 'expired') renderExpiredPage();
-    else if (currentPage === 'bazaar') renderBazaarPage();
+    
+    const currentPage = document.querySelector('.page.active').id;
+    if (currentPage === 'users') {
+        renderUsersPage();
+    } else if (currentPage === 'statistics') {
+        updateStatistics();
+    } else if (currentPage === 'expired') {
+        renderExpiredPage();
+    } else if (currentPage === 'bazaar') {
+        renderBazaarPage();
+    }
 }
