@@ -1067,4 +1067,110 @@ select:focus {
             align-items: flex-start;
         }
     }
+    /* Карточки статистики пакетов */
+.package-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.package-stat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid var(--accent-green);
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.package-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+}
+
+.package-stat-card.total {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #27ae60 100%);
+    color: white;
+    border-left: none;
+    cursor: default;
+}
+
+.package-stat-card.total:hover {
+    transform: none;
+}
+
+.stat-card-icon {
+    font-size: 32px;
+    line-height: 1;
+}
+
+.package-stat-card.total .stat-card-icon {
+    font-size: 36px;
+}
+
+.stat-card-info {
+    flex: 1;
+}
+
+.stat-card-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.package-stat-card.total .stat-card-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-card-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.package-stat-card.total .stat-card-value {
+    color: white;
+    font-size: 28px;
+}
+
+/* Обновленный select с счетчиками */
+#filterPackage {
+    font-weight: 500;
+}
+
+#filterPackage option {
+    padding: 8px;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .package-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .package-stat-card {
+        padding: 12px;
+    }
+    
+    .stat-card-icon {
+        font-size: 28px;
+    }
+    
+    .stat-card-value {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .package-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
 }
