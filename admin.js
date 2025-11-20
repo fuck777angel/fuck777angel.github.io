@@ -290,14 +290,59 @@ window.calculatePrice = function() {
 function formatPrice(price) {
     return new Intl.NumberFormat('ru-RU').format(price) + ' сум';
 }
+function renderPackageStatsCards() {
+    const stats = getPackageStats();
+    const total = Object.values(stats).reduce((sum, count) => sum + count, 0);
+    
+    const packages = [
+        { name: 'Standart', color: '#3498db', icon: '📦' },
+        { name: 'Balance Lite', color: '#9b59b6', icon: '⚖️' },
+        { name: 'Диабет', color: '#e74c3c', icon: '💉' },
+        { name: 'Energy Sport', color: '#f39c12', icon: '⚡' },
+        { name: 'Power Sport', color: '#e67e22', icon: '💪' },
+        { name: 'Power XL', color: '#1abc9c', icon: '🔥' },
+        { name: 'Power 2XL', color: '#16a085', icon: '🚀' },
+        { name: 'Power 3XL', color: '#27ae60', icon: '⭐' },
+        { name: 'Power 4XL', color: '#2ecc71', icon: '👑' }
+    ];
+    
+    const container = document.getElementById('packageStatsCards');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="package-stat-card total">
+            <div class="stat-card-icon">👥</div>
+            <div class="stat-card-info">
+                <div class="stat-card-label">Всего активных</div>
+                <div class="stat-card-value">${total}</div>
+            </div>
+        </div>
+        ${packages.map(pkg => `
+            <div class="package-stat-card" style="border-left-color: ${pkg.color};" onclick="filterByPackage('${pkg.name}')">
+                <div class="stat-card-icon">${pkg.icon}</div>
+                <div class="stat-card-info">
+                    <div class="stat-card-label">${pkg.name}</div>
+                    <div class="stat-card-value">${stats[pkg.name] || 0}</div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+}
 
+window.filterByPackage = function(packageName) {
+    document.getElementById('filterPackage').value = packageName;
+    filterUsers();
+}
 window.showPage = function(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
     event.target.classList.add('active');
 
-    if (pageId === 'users') renderUsersPage();
+    if (pageId === 'users') {
+        renderPackageStatsCards(); // ДОБАВЬ ЭТО
+        renderUsersPage();
+    }
     else if (pageId === 'statistics') updateStatistics();
     else if (pageId === 'expired') renderExpiredPage();
     else if (pageId === 'bazaar') renderBazaarPage();
@@ -842,6 +887,7 @@ function renderFilteredUsers(filteredUsers) {
 }
 
 function renderUsersPage() {
+    renderPackageStatsCards(); // ДОБАВЬ ЭТО
     renderFilteredUsers(users.filter(u => {
         const remaining = calculateDaysRemaining(u);
         return remaining >= 0 && !u.archived;
