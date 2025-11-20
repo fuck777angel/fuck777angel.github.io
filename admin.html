@@ -42,7 +42,7 @@
                 </form>
                 
                 <div class="login-footer">
-                    <small>GreenFood Admin System v2.0</small>
+                    <small>GreenFood Admin System v2.1</small>
                 </div>
             </div>
         </div>
@@ -75,6 +75,7 @@
                 <button class="nav-btn active" onclick="showPage('main')">Главная</button>
                 <button class="nav-btn" onclick="showPage('users')">Пользователи</button>
                 <button class="nav-btn" onclick="showPage('expired')">Просроченные</button>
+                <button class="nav-btn" onclick="showPage('bazaar')">Базар</button>
                 <button class="nav-btn" onclick="showPage('calculator')">Калькулятор</button>
                 <button class="nav-btn" onclick="showPage('statistics')">Статистика</button>
             </nav>
@@ -95,6 +96,7 @@
                         <option value="">Все пакеты</option>
                         <option value="Standart">Standart</option>
                         <option value="Balance Lite">Balance Lite</option>
+                        <option value="Диабет">Диабет</option>
                         <option value="Energy Sport">Energy Sport</option>
                         <option value="Power Sport">Power Sport</option>
                         <option value="Power XL">Power XL</option>
@@ -114,6 +116,36 @@
                 <div id="expiredList"></div>
             </div>
 
+            <div id="bazaar" class="page">
+                <div class="bazaar-header">
+                    <h2>🛒 Базар - Учет расходов</h2>
+                    <button class="btn btn-add" onclick="openExpenseModal()">➕ Добавить траты</button>
+                </div>
+
+                <div class="bazaar-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="bazaarTotalRevenue">0 сум</div>
+                        <div class="stat-label">Общий доход</div>
+                    </div>
+                    <div class="stat-card stat-danger">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-value" id="bazaarTotalExpenses">0 сум</div>
+                        <div class="stat-label">Всего расходов</div>
+                    </div>
+                    <div class="stat-card" style="border: 2px solid var(--accent-green);">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="bazaarProfit">0 сум</div>
+                        <div class="stat-label">Чистая прибыль</div>
+                    </div>
+                </div>
+
+                <div class="expenses-list">
+                    <h3>📝 История расходов</h3>
+                    <div id="expensesList"></div>
+                </div>
+            </div>
+
             <div id="calculator" class="page">
                 <div class="calculator-card">
                     <h2>💰 Калькулятор цен</h2>
@@ -126,7 +158,11 @@
                             </div>
                             <div class="price-item">
                                 <span class="package-name">Balance Lite</span>
-                                <span class="package-price">115.000 сум</span>
+                                <span class="package-price">120.000 сум</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="package-name">Диабет</span>
+                                <span class="package-price">145.000 сум</span>
                             </div>
                             <div class="price-item">
                                 <span class="package-name">Energy Sport</span>
@@ -207,6 +243,7 @@
             </div>
         </div>
 
+        <!-- Модальное окно добавления пользователя -->
         <div id="addModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -240,7 +277,8 @@
                         <label>Пакет</label>
                         <select id="package" required onchange="calculatePrice()">
                             <option value="Standart">Standart - 100.000 сум/день</option>
-                            <option value="Balance Lite">Balance Lite - 115.000 сум/день</option>
+                            <option value="Balance Lite">Balance Lite - 120.000 сум/день</option>
+                            <option value="Диабет">Диабет - 145.000 сум/день</option>
                             <option value="Energy Sport">Energy Sport - 150.000 сум/день</option>
                             <option value="Power Sport">Power Sport - 210.000 сум/день</option>
                             <option value="Power XL">Power XL - 250.000 сум/день</option>
@@ -277,6 +315,35 @@
                             <span>Итого:</span>
                             <span id="totalPrice">0 сум</span>
                         </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-add" style="width: 100%;">Добавить</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Модальное окно добавления расходов -->
+        <div id="expenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>💸 Добавить траты</h2>
+                    <button class="close-btn" onclick="closeExpenseModal()">&times;</button>
+                </div>
+                
+                <form id="addExpenseForm" onsubmit="addExpense(event)">
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <input type="text" id="expenseDescription" placeholder="Например: Покупка продуктов" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Сумма (сум)</label>
+                        <input type="number" id="expenseAmount" placeholder="0" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дата</label>
+                        <input type="date" id="expenseDate" required>
                     </div>
 
                     <button type="submit" class="btn btn-add" style="width: 100%;">Добавить</button>

@@ -3,6 +3,24 @@ const USERS_AUTH = {
     'root': 'Root3509900'
 };
 
+const API_URL = 'api.php'; // Путь к PHP API
+
+let users = [];
+let expenses = [];
+let selectedUsers = new Set();
+
+const PRICES = {
+    'Standart': 100000,
+    'Balance Lite': 120000,
+    'Диабет': 145000,
+    'Energy Sport': 150000,
+    'Power Sport': 210000,
+    'Power XL': 250000,
+    'Power 2XL': 300000,
+    'Power 3XL': 350000,
+    'Power 4XL': 400000
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     checkAuth();
 });
@@ -57,65 +75,55 @@ function logout() {
     }
 }
 
-class LocalDB {
-    constructor(key) {
-        this.key = key;
-    }
-
-    getAll() {
-        const data = localStorage.getItem(this.key);
-        return data ? JSON.parse(data) : [];
-    }
-
-    saveAll(data) {
-        localStorage.setItem(this.key, JSON.stringify(data));
-    }
-
-    add(item) {
-        const data = this.getAll();
-        item.id = Date.now();
-        data.push(item);
-        this.saveAll(data);
-        return item;
-    }
-
-    update(id, updatedItem) {
-        const data = this.getAll();
-        const index = data.findIndex(item => item.id === id);
-        if (index !== -1) {
-            data[index] = { ...data[index], ...updatedItem };
-            this.saveAll(data);
-            return data[index];
+// API функции для работы с JSON файлом
+async function loadData() {
+    try {
+        const response = await fetch(API_URL + '?action=load');
+        const data = await response.json();
+        
+        if (data.success) {
+            users = data.data.users || [];
+            expenses = data.data.expenses || [];
+            renderUsers();
+            updateStatistics();
+            renderBazaarPage();
+        } else {
+            console.error('Ошибка загрузки данных:', data.error);
+            alert('❌ Ошибка загрузки данных!');
         }
-        return null;
-    }
-
-    delete(ids) {
-        const data = this.getAll();
-        const filtered = data.filter(item => !ids.includes(item.id));
-        this.saveAll(filtered);
-        return true;
-    }
-
-    clear() {
-        localStorage.removeItem(this.key);
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('❌ Ошибка подключения к серверу!');
     }
 }
 
-const db = new LocalDB('greenfoodUsers');
-let users = [];
-let selectedUsers = new Set();
+async function saveData() {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'save',
+                data: {
+                    users: users,
+                    expenses: expenses
+                }
+            })
+        });
 
-const PRICES = {
-    'Standart': 100000,
-    'Balance Lite': 115000,
-    'Energy Sport': 150000,
-    'Power Sport': 210000,
-    'Power XL': 250000,
-    'Power 2XL': 300000,
-    'Power 3XL': 350000,
-    'Power 4XL': 400000
-};
+        const result = await response.json();
+        
+        if (!result.success) {
+            console.error('Ошибка сохранения:', result.error);
+            alert('❌ Ошибка сохранения данных!');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('❌ Ошибка подключения к серверу!');
+    }
+}
 
 function initApp() {
     loadTheme();
@@ -125,7 +133,12 @@ function initApp() {
         orderDateInput.valueAsDate = new Date();
     }
 
-    loadUsers();
+    const expenseDateInput = document.getElementById('expenseDate');
+    if (expenseDateInput) {
+        expenseDateInput.valueAsDate = new Date();
+    }
+
+    loadData();
     updateDailyCountdown();
 
     setInterval(updateDailyCountdown, 60000);
@@ -135,24 +148,12 @@ function initApp() {
             closeModal();
         }
     });
-}
 
-function loadUsers() {
-    users = db.getAll();
-    renderUsers();
-    updateStatistics();
-}
-
-function saveUser(user) {
-    return db.add(user);
-}
-
-function updateUser(id, updatedData) {
-    return db.update(id, updatedData);
-}
-
-function deleteUsers(ids) {
-    return db.delete(ids);
+    document.getElementById('expenseModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeExpenseModal();
+        }
+    });
 }
 
 function loadTheme() {
@@ -179,9 +180,10 @@ function updateThemeIcon(theme) {
 
 function exportData() {
     const data = {
-        users: db.getAll(),
+        users: users,
+        expenses: expenses,
         exportDate: new Date().toISOString(),
-        version: '2.0'
+        version: '2.1'
     };
 
     const dataStr = JSON.stringify(data, null, 2);
@@ -203,18 +205,20 @@ function importData() {
     document.getElementById('importFile').click();
 }
 
-function handleImport(event) {
+async function handleImport(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         try {
             const data = JSON.parse(e.target.result);
             
-            if (confirm(`Импортировать ${data.users?.length || 0} пользователей? Текущие данные будут заменены!`)) {
-                db.saveAll(data.users || []);
-                loadUsers();
+            if (confirm(`Импортировать ${data.users?.length || 0} пользователей и ${data.expenses?.length || 0} расходов? Текущие данные будут заменены!`)) {
+                users = data.users || [];
+                expenses = data.expenses || [];
+                await saveData();
+                await loadData();
                 alert('✅ Данные успешно импортированы!');
             }
         } catch (error) {
@@ -319,6 +323,8 @@ function showPage(pageId) {
         updateStatistics();
     } else if (pageId === 'expired') {
         renderExpiredPage();
+    } else if (pageId === 'bazaar') {
+        renderBazaarPage();
     }
 }
 
@@ -334,7 +340,17 @@ function closeModal() {
     document.getElementById('priceCalculation').style.display = 'none';
 }
 
-function addUser(e) {
+function openExpenseModal() {
+    document.getElementById('expenseModal').classList.add('active');
+}
+
+function closeExpenseModal() {
+    document.getElementById('expenseModal').classList.remove('active');
+    document.getElementById('addExpenseForm').reset();
+    document.getElementById('expenseDate').valueAsDate = new Date();
+}
+
+async function addUser(e) {
     e.preventDefault();
 
     const firstName = document.getElementById('firstName').value;
@@ -348,6 +364,7 @@ function addUser(e) {
     const priceData = calculatePrice();
 
     const user = {
+        id: Date.now(),
         firstName,
         lastName,
         phone,
@@ -369,9 +386,41 @@ function addUser(e) {
         }
     };
 
-    saveUser(user);
-    loadUsers();
+    users.push(user);
+    await saveData();
+    await loadData();
     closeModal();
+    alert('✅ Пользователь добавлен!');
+}
+
+async function addExpense(e) {
+    e.preventDefault();
+
+    const description = document.getElementById('expenseDescription').value;
+    const amount = parseInt(document.getElementById('expenseAmount').value);
+    const date = document.getElementById('expenseDate').value;
+
+    const expense = {
+        id: Date.now(),
+        description,
+        amount,
+        date,
+        createdAt: new Date().toISOString()
+    };
+
+    expenses.push(expense);
+    await saveData();
+    await loadData();
+    closeExpenseModal();
+    alert('✅ Расход добавлен!');
+}
+
+async function deleteExpense(expenseId) {
+    if (confirm('Удалить этот расход?')) {
+        expenses = expenses.filter(e => e.id !== expenseId);
+        await saveData();
+        await loadData();
+    }
 }
 
 function toggleUserSelection(userId) {
@@ -386,7 +435,7 @@ function toggleUserSelection(userId) {
     }
 }
 
-function deleteSelected() {
+async function deleteSelected() {
     if (selectedUsers.size === 0) {
         alert('Выберите пользователей для удаления');
         return;
@@ -394,13 +443,14 @@ function deleteSelected() {
 
     if (confirm(`Удалить выбранных пользователей (${selectedUsers.size})?`)) {
         const userIds = Array.from(selectedUsers);
-        deleteUsers(userIds);
+        users = users.filter(u => !userIds.includes(u.id));
         selectedUsers.clear();
-        loadUsers();
+        await saveData();
+        await loadData();
     }
 }
 
-function togglePause(userId) {
+async function togglePause(userId) {
     const user = users.find(u => u.id === userId);
     if (!user) return;
 
@@ -429,8 +479,8 @@ function togglePause(userId) {
         }
     }
 
-    updateUser(user.id, user);
-    loadUsers();
+    await saveData();
+    await loadData();
 
     if (document.getElementById('users').classList.contains('active')) {
         renderUsersPage();
@@ -492,7 +542,7 @@ function openTelegram(username) {
     window.open(`https://t.me/${cleanUsername}`, '_blank');
 }
 
-function archiveExpired() {
+async function archiveExpired() {
     const expiredUsers = users.filter(u => {
         const remaining = calculateDaysRemaining(u);
         return remaining < 0 && !u.archived;
@@ -506,9 +556,9 @@ function archiveExpired() {
     if (confirm(`Архивировать ${expiredUsers.length} просроченных подписок?`)) {
         expiredUsers.forEach(user => {
             user.archived = true;
-            updateUser(user.id, user);
         });
-        loadUsers();
+        await saveData();
+        await loadData();
         alert('✅ Просроченные подписки архивированы!');
     }
 }
@@ -554,6 +604,54 @@ function renderExpiredPage() {
     }
 
     container.innerHTML = expiredUsers.map(user => createExpiredUserCardHTML(user)).join('');
+}
+
+function renderBazaarPage() {
+    // Подсчет общего дохода
+    const totalRevenue = users.reduce((sum, u) => sum + (u.price?.totalPrice || 0), 0);
+    
+    // Подсчет расходов
+    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+    
+    // Чистая прибыль
+    const profit = totalRevenue - totalExpenses;
+
+    document.getElementById('bazaarTotalRevenue').textContent = formatPrice(totalRevenue);
+    document.getElementById('bazaarTotalExpenses').textContent = formatPrice(totalExpenses);
+    document.getElementById('bazaarProfit').textContent = formatPrice(profit);
+
+    // Отображение списка расходов
+    const expensesList = document.getElementById('expensesList');
+    
+    if (expenses.length === 0) {
+        expensesList.innerHTML = `
+            <div class="empty-state">
+                <p>📝 Расходов пока нет</p>
+            </div>
+        `;
+        return;
+    }
+
+    const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    expensesList.innerHTML = sortedExpenses.map(expense => `
+        <div class="expense-card">
+            <div class="expense-header">
+                <div class="expense-description">${expense.description}</div>
+                <button class="btn-delete-expense" onclick="deleteExpense(${expense.id})" title="Удалить">🗑️</button>
+            </div>
+            <div class="expense-info">
+                <div class="info-row">
+                    <span class="info-label">Дата:</span>
+                    <span class="info-value">${new Date(expense.date).toLocaleDateString('ru-RU')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Сумма:</span>
+                    <span class="expense-amount">${formatPrice(expense.amount)}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function createExpiredUserCardHTML(user) {
@@ -724,6 +822,14 @@ function createUserCardHTML(user, withCheckbox = false) {
             </div>
 
             <div class="user-actions">
+                ${user.telegram ? `
+                    <button class="btn btn-small btn-telegram" onclick="openTelegram('${user.telegram}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L8.08 13.73l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.827z"/>
+                        </svg>
+                        Перейти
+                    </button>
+                ` : ''}
                 <button class="btn btn-small ${user.paused ? 'btn-resume' : 'btn-pause'}" 
                         onclick="togglePause(${user.id})">
                     ${user.paused ? '▶️ Продолжить' : '⏸️ Взять отгул'}
@@ -849,5 +955,7 @@ function updateDailyCountdown() {
         updateStatistics();
     } else if (currentPage === 'expired') {
         renderExpiredPage();
+    } else if (currentPage === 'bazaar') {
+        renderBazaarPage();
     }
 }
