@@ -78,7 +78,42 @@ async function saveData() {
         alert('❌ Ошибка сохранения данных!');
     }
 }
+function getPackageStats() {
+    const stats = {};
+    
+    // Считаем активных пользователей по пакетам
+    users.filter(u => {
+        const remaining = calculateDaysRemaining(u);
+        return remaining >= 0 && !u.archived;
+    }).forEach(user => {
+        if (!stats[user.package]) {
+            stats[user.package] = 0;
+        }
+        stats[user.package]++;
+    });
+    
+    return stats;
+}
 
+function renderPackageFilter() {
+    const stats = getPackageStats();
+    const total = Object.values(stats).reduce((sum, count) => sum + count, 0);
+    
+    const filterSelect = document.getElementById('filterPackage');
+    
+    filterSelect.innerHTML = `
+        <option value="">Все пакеты (${total})</option>
+        <option value="Standart">Standart ${stats['Standart'] ? `(${stats['Standart']})` : '(0)'}</option>
+        <option value="Balance Lite">Balance Lite ${stats['Balance Lite'] ? `(${stats['Balance Lite']})` : '(0)'}</option>
+        <option value="Диабет">Диабет ${stats['Диабет'] ? `(${stats['Диабет']})` : '(0)'}</option>
+        <option value="Energy Sport">Energy Sport ${stats['Energy Sport'] ? `(${stats['Energy Sport']})` : '(0)'}</option>
+        <option value="Power Sport">Power Sport ${stats['Power Sport'] ? `(${stats['Power Sport']})` : '(0)'}</option>
+        <option value="Power XL">Power XL ${stats['Power XL'] ? `(${stats['Power XL']})` : '(0)'}</option>
+        <option value="Power 2XL">Power 2XL ${stats['Power 2XL'] ? `(${stats['Power 2XL']})` : '(0)'}</option>
+        <option value="Power 3XL">Power 3XL ${stats['Power 3XL'] ? `(${stats['Power 3XL']})` : '(0)'}</option>
+        <option value="Power 4XL">Power 4XL ${stats['Power 4XL'] ? `(${stats['Power 4XL']})` : '(0)'}</option>
+    `;
+}
 // Автообновление данных каждые 5 секунд
 setInterval(async () => {
     await loadData();
