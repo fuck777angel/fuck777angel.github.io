@@ -46,6 +46,9 @@ async function loadData() {
         renderUsers();
         updateStatistics();
         renderBazaarPage();
+        
+        // ДОБАВЬ ЭТУ СТРОКУ:
+        renderPackageFilter();
 
         console.log('✅ Данные загружены:', { users: users.length, expenses: expenses.length });
     } catch (error) {
@@ -536,6 +539,8 @@ function renderUsers() {
     }
 
     container.innerHTML = activeUsers.map(user => createUserCardHTML(user, true)).join('');
+
+    renderPackageFilter();
 }
 
 function renderExpiredPage() {
@@ -803,6 +808,9 @@ function filterUsers() {
     });
 
     renderFilteredUsers(filtered);
+
+    renderPackageFilter();
+
 }
 
 function renderFilteredUsers(filteredUsers) {
