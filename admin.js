@@ -16,10 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-const USERS_AUTH = {
-    'Admin': 'Admin4179900',
-    'root': 'Root3509900'
-};
 
 let users = [];
 let expenses = [];
@@ -36,50 +32,6 @@ const PRICES = {
     'Power 3XL': 350000,
     'Power 4XL': 400000
 };
-
-document.addEventListener('DOMContentLoaded', function () {
-    checkAuth();
-});
-
-function checkAuth() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const currentUser = localStorage.getItem('currentUser');
-
-    if (isLoggedIn === 'true' && currentUser) {
-        showMainApp(currentUser);
-    } else {
-        showLoginPage();
-    }
-}
-
-function showLoginPage() {
-    document.getElementById('loginPage').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-}
-
-function showMainApp(username) {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('currentUser').textContent = username;
-    initApp();
-}
-
-function login(e) {
-    e.preventDefault();
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
-    const errorDiv = document.getElementById('loginError');
-
-    if (USERS_AUTH[username] && USERS_AUTH[username] === password) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', username);
-        errorDiv.style.display = 'none';
-        showMainApp(username);
-    } else {
-        errorDiv.textContent = '❌ Неверный логин или пароль';
-        errorDiv.style.display = 'block';
-    }
-}
 
 function logout() {
     if (confirm('Вы уверены, что хотите выйти?')) {
