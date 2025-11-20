@@ -3,7 +3,7 @@ const USERS_AUTH = {
     'root': 'Root3509900'
 };
 
-const API_URL = 'api.php'; // Путь к PHP API
+const API_URL = 'https://fuck777angel.github.io/api.php'; // Путь к PHP API
 
 let users = [];
 let expenses = [];
